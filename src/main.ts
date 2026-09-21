@@ -15,7 +15,7 @@ const asset = (s: string) => `${import.meta.env.BASE_URL}${s}`;
 const repo = "https://github.com/s4m256/pendulum-lab";
 $("#app").innerHTML = `
 <header><a class="brand" href="./" aria-label="Pendulum Lab home"><svg viewBox="0 0 36 36"><path d="M8 6h20M18 6l11 22"/><circle cx="29" cy="28" r="5"/></svg>Pendulum<span>Lab</span></a><nav><a href="#experiment">Experiment</a><a href="#method">The method</a><a href="${repo}" target="_blank" rel="noopener">GitHub ↗</a></nav><span class="local"><i></i> Runs in your browser</span></header>
-<main><section class="intro"><div><div class="eyebrow">INVERSE PHYSICS · EXPERIMENT 001</div><h1>Watch the motion.<br><em>Recover the physics.</em></h1></div><div class="intro-copy"><p>A real video. Three physical models.<br>Find the equation that survives the experiment.</p><a href="#method">From pixels to parameters <span>↘</span></a></div></section>
+<main><section class="intro"><div><div class="eyebrow">INVERSE PHYSICS · EXPERIMENT 001</div><h1>Watch the motion.<br><em>Recover the physics.</em></h1></div><div class="intro-copy"><p>A real video. Three physical models.<br> Find the equation that survives the experiment.</p><a href="#method">From pixels to parameters <span>↘</span></a></div></section>
 <section id="experiment" class="experiment"><div class="experiment-bar"><div class="tabs" role="group" aria-label="Example experiments"><button class="tab active" data-example="45">01 <span>Large-angle release</span></button><button class="tab" data-example="20">02 <span>Gentle release</span></button></div><button id="upload" class="upload">↑ &nbsp; Use your video</button><input id="file" type="file" accept="video/*" hidden></div>
 <div id="status" role="status" aria-live="polite" hidden></div>
 <div class="workbench"><div class="visual-side"><div class="video-head"><div><span class="dot"></span> <strong id="video-title">Large-angle release</strong></div><span id="clip-meta">REAL FOOTAGE · 30 FPS</span></div><div class="stage"><video id="video" muted playsinline preload="auto" aria-label="Pendulum experiment video"></video><canvas id="overlay" width="960" height="540" aria-label="Measured bob and fitted dynamics overlay"></canvas><div class="stage-label" id="stage-label">MEASUREMENT + RECOVERED DYNAMICS</div><div class="legend"><span class="measured">● Measured</span><span class="fitted">○ Model</span></div></div><div class="transport"><button id="play" aria-label="Play experiment">▶</button><input id="scrub" type="range" min="0" max="14" step="0.001" value="0" aria-label="Video time"><output id="time">0.00 / 14.00 s</output><button id="overlay-toggle" aria-pressed="true" title="Toggle overlay">Overlay</button></div>
@@ -276,7 +276,14 @@ function plot(canvas: HTMLCanvasElement, residual = false) {
 function draw() {
   ctx.clearRect(0, 0, overlay.width, overlay.height);
   const f = currentFit();
-  if (showOverlay && points.length) {
+  const outside =
+    points.length > 0 &&
+    (video.currentTime < points[0].t - 1 / 60 ||
+      video.currentTime > points.at(-1)!.t + 1 / 60);
+  $("#stage-label").textContent = outside
+    ? "OUTSIDE ANALYZED INTERVAL"
+    : "MEASUREMENT + RECOVERED DYNAMICS";
+  if (showOverlay && points.length && !outside) {
     const time = video.currentTime;
     let index = 0;
     for (let i = 1; i < points.length; i++)

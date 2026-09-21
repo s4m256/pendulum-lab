@@ -57,24 +57,20 @@ test("upload actual footage, mark pivot and bob, track pixels, fit and correct a
   await page.locator("#end").fill("8");
   await page.locator("#select-pivot").click();
   let box = await page.locator("#overlay").boundingBox();
-  await page
-    .locator("#overlay")
-    .click({
-      position: {
-        x: (example.pivot.x / 960) * box!.width,
-        y: (example.pivot.y / 540) * box!.height,
-      },
-    });
+  await page.locator("#overlay").click({
+    position: {
+      x: (example.pivot.x / 960) * box!.width,
+      y: (example.pivot.y / 540) * box!.height,
+    },
+  });
   await page.locator("#select-bob").click();
   box = await page.locator("#overlay").boundingBox();
-  await page
-    .locator("#overlay")
-    .click({
-      position: {
-        x: (example.points[0].x / 960) * box!.width,
-        y: (example.points[0].y / 540) * box!.height,
-      },
-    });
+  await page.locator("#overlay").click({
+    position: {
+      x: (example.points[0].x / 960) * box!.width,
+      y: (example.points[0].y / 540) * box!.height,
+    },
+  });
   await page.locator("#track").click();
   await expect(page.locator("#status")).toBeHidden({ timeout: 100000 });
   await expect(page.locator("#parameters")).toContainText("q = g/L");
@@ -101,16 +97,21 @@ test("upload actual footage, mark pivot and bob, track pixels, fit and correct a
   expect(fitted.params.q).toBeGreaterThan(18);
   expect(fitted.params.q).toBeLessThan(20);
   expect((fitted.testRmse * 180) / Math.PI).toBeLessThan(2);
+  await page.locator("#scrub").fill("10");
+  await page.locator("#scrub").dispatchEvent("input");
+  await expect(page.locator("#stage-label")).toHaveText(
+    "OUTSIDE ANALYZED INTERVAL",
+  );
+  await page.locator("#scrub").fill("0");
+  await page.locator("#scrub").dispatchEvent("input");
   await page.locator("#correct").click();
   box = await page.locator("#overlay").boundingBox();
-  await page
-    .locator("#overlay")
-    .click({
-      position: {
-        x: (example.points[0].x / 960) * box!.width,
-        y: (example.points[0].y / 540) * box!.height,
-      },
-    });
+  await page.locator("#overlay").click({
+    position: {
+      x: (example.points[0].x / 960) * box!.width,
+      y: (example.points[0].y / 540) * box!.height,
+    },
+  });
   await expect(page.locator("#model-cards")).toContainText(
     "Measurement corrected",
   );
